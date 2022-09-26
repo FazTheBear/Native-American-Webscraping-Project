@@ -6,6 +6,7 @@ version = 3
 name = "Native-American-Webscraping-Project"
 version = "0.1.0"
 dependencies = [
+ "serde_json",
  "serpapi-search-rust",
  "tokio",
 ]
