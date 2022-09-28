@@ -1,8 +1,9 @@
-use std::{collections::HashMap, fs::{File, self}, io::{self, BufRead, BufReader, Error}, path::Path};
+use std::{collections::HashMap, fs::{File, self}, io::{self, BufRead, BufReader, Error}, path::Path, ops::Deref};
+use serpapi_search_rust::serp_api_search::SerpApiSearch;
 
 #[derive(Debug)]
 struct Dispenser {
-    package: HashMap<String, String>,
+    key: String,
     queries: Vec<String>
 }
 
@@ -10,24 +11,30 @@ impl Dispenser {
     fn new(key: String) -> Dispenser {
 
         Dispenser {
-            package: HashMap::new(),
+            key: key,
             queries: parse_text_file().unwrap()
         }
     }
-
-    pub fn search(&self,) {
-        for query in 0..self.queries.len() {
-
-        }
-        let mut params = HashMap::<String, String>::new();
-        params.insert("engine".to_string(), "google".to_string());
-        params.insert("q".to_string(), key.to_string());
-
-        sel
-
-        let search = SerpApiSearch::google(self.p, "secret_api_key".to_string());
-        
+    /// Return the organic results from the search
+    fn get_oresults(search: SerpApiSearch) {
+    
     }
+    
+    pub fn search(&self, amt_queries_sent: Option<i32>) -> Result<(), Error>{
+        for query in 0..amt_queries_sent.unwrap_or(self.queries.len() as i32) {
+            let mut params = HashMap::<String, String>::new();
+            params.insert("engine".to_string(), "google".to_string());
+            params.insert("q".to_string(), query.to_string());
+
+            let search = SerpApiSearch::google(params, self.key);
+            Self::get_oresults(search)
+        }
+
+
+        Ok(())
+    }
+
+
 }
 
 fn parse_text_file() -> Result<Vec<String>, Error> {
