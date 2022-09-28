@@ -1,23 +1,21 @@
-use std::{collections::HashMap, fs::File, io::{self, BufRead}, path::Path};
+use std::{collections::HashMap, fs::{File, self}, io::{self, BufRead, BufReader, Error}, path::Path};
 
-struct Dispenser;
-
-fn parse_text_file() -> Vec<String> {
-    let mut tribes_list = Vec::new();
-    if let Ok(lines) = read_lines("config/tribes.txt") {
-        for line in lines {
-            if let Ok(tribe) = line {
-                tribes_list.push(tribe);
-            }
-        }
-    }
-    tribes_list
+struct Dispenser {
+    key: String,
+    tribes_list: Vec<String>
 }
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+
+
+fn parse_text_file() -> Result<Vec<String>, Error> {
+    let mut tribes_list = Vec::new();
+    let contents = File::open("tribes.txt")?;
+    let reader = BufReader::new(contents);
+
+    for line in reader.lines().filter(|x| x.as_deref().unwrap().len() > 0) {
+        tribes_list.push(line?);
+    }
+    Ok(tribes_list)
 }
 
 pub fn return_parameters(tribe_name: String) -> HashMap::<String, String> {
@@ -27,7 +25,6 @@ pub fn return_parameters(tribe_name: String) -> HashMap::<String, String> {
   params
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::{parse_text_file};
@@ -35,8 +32,7 @@ mod tests {
     #[test]
     fn parse_text_file_test() {
         let tribes_list = parse_text_file();
-        println!("{:?}", tribes_list);
-        println!("test");
+        println!("{:?}", tribes_list.unwrap());
         assert_eq!("2", "1");
     }
 } 
