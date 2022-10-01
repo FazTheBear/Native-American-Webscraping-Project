@@ -23,17 +23,19 @@ impl Dispenser {
         Ok(results["organic_results"].clone())
     }
     
-    pub async fn tribe_search(&self, amt_queries_sent: Option<i32>) -> Result<(), Box<dyn std::error::Error>>{
+    pub async fn tribe_search(&self, amt_queries_sent: Option<i32>) -> Vec<Result<(), Box<dyn std::error::Error>>>{
+        let mut tribe_info = Vec::new();
         for query in 0..amt_queries_sent.unwrap_or(self.queries.len() as i32) {
             let mut params = HashMap::<String, String>::new();
             params.insert("engine".to_string(), "google".to_string());
             params.insert("q".to_string(), query.to_string());
 
             let search = SerpApiSearch::google(params, (*self.key).to_string());
-            Self::get_oresults(search).await;
+            
+            tribe_info.push(Self::get_oresults(search).await);
         }
 
-        Ok(())
+        tribe_info
     }
 
 
