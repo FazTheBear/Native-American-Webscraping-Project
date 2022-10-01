@@ -8,6 +8,7 @@ pub struct Dispenser {
     queries: Vec<String>
 }
 
+
 impl Dispenser {
     ///generates a new Dispenser object,
     pub fn new(key_file: &str, queries_file: &str) -> Dispenser {
@@ -23,12 +24,12 @@ impl Dispenser {
         Ok(results["organic_results"].clone())
     }
     
-    pub async fn tribe_search(&self, amt_queries_sent: Option<i32>) -> Vec<Result<(), Box<dyn std::error::Error>>>{
+    pub async fn tribe_search(&self, amt_queries_sent: Option<i32>) -> Vec<Result<Value, Box<dyn std::error::Error>>>{
         let mut tribe_info = Vec::new();
-        for query in 0..amt_queries_sent.unwrap_or(self.queries.len() as i32) {
+        for query_index in 0..amt_queries_sent.unwrap_or(self.queries.len() as i32) {
             let mut params = HashMap::<String, String>::new();
             params.insert("engine".to_string(), "google".to_string());
-            params.insert("q".to_string(), query.to_string());
+            params.insert("q".to_string(), self.queries.get(query_index as usize).unwrap().to_string());
 
             let search = SerpApiSearch::google(params, (*self.key).to_string());
             
@@ -43,7 +44,13 @@ impl Dispenser {
 
 fn parse_text_file(name: &str) -> Result<Vec<String>, Error> {
     let mut tribes_list = Vec::new();
-    let contents = File::open(name)?;
+
+    //Preformatting path so that it leads to config
+    let mut path = "src/config/".to_owned();
+    path.push_str(name.clone());
+    println!("{}", path);
+
+    let contents = File::open(path)?;
     let reader = BufReader::new(contents);
 
     for line in reader.lines().filter(|x| x.as_deref().unwrap().len() > 0) {
@@ -64,24 +71,23 @@ mod tests {
     use crate::{parse_text_file, Dispenser};
 
     #[test]
-    fn parse_text_file_test() {
-        let tribes_list = parse_text_file("tribes.txt");
-        println!("{:?}", tribes_list.unwrap());
-        assert_eq!("2", "1");
-    }
-    #[test]
     fn return_key() {
-        let key_list = parse_text_file("key.txt");
+        let key_list = parse_text_file("tests.txt");
         let key = &key_list.unwrap()[0];
-        assert_eq!("1", "2")
+        assert_eq!(key, "ThisIsATest")
     }
-    #[test]
-    fn create_Dispenser () {
-        let key = String::from("I'm a random key!");
+
+    ///Sends an actual api call to the API, uses up an actual request, use sparingly!
+    /// Will fail Always!
+    #[tokio::test]
+    async fn test_api_call() {
         let dispenser = Dispenser::new("key.txt", "tribes.txt");
-        
-        println!("{:?}", dispenser);
-        assert_eq!("1", "2");
-        
+        let results = dispenser.tribe_search(Some(3)).await;
+        println!("{:?}", results);
+    }
+
+    #[tokio::test]
+    async fn parse_api_call() {
+
     }
 } 
