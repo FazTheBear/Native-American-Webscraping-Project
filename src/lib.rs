@@ -1,5 +1,5 @@
 use std::{collections::HashMap, fs::{File, self}, io::{self, BufRead, BufReader, Error}, path::Path, ops::Deref};
-use serde_json::Value;
+use serde_json::{Value, json};
 use serpapi_search_rust::serp_api_search::SerpApiSearch;
 
 #[derive(Debug)]
@@ -68,6 +68,7 @@ pub fn return_parameters(tribe_name: String) -> HashMap::<String, String> {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::{Value, json};
     use crate::{parse_text_file, Dispenser};
 
     #[test]
@@ -82,12 +83,21 @@ mod tests {
     #[tokio::test]
     async fn test_api_call() {
         let dispenser = Dispenser::new("key.txt", "tribes.txt");
-        let results = dispenser.tribe_search(Some(3)).await;
-        println!("{:?}", results);
-    }
+        let results = dispenser.tribe_search(Some(1)).await;
 
+        for value in results {
+            println!("{:?}", value.unwrap().to_string());
+        }
+        
+    }
     #[tokio::test]
     async fn parse_api_call() {
+        let example_response_string = "{\"about_page_link\":\"https://www.google.com/search?q=About+https://www.astribe.com/&tbm=ilp&ilps=ADNMCi3IbCd8HtgQm7HLpl1hJyWRoQyOWQ\",\"about_this_result\":{\"keywords\":[\"absentee\",\"shawnee\",\"tribe\",\"indians\",\"oklahoma\"],\"languages\":[\"English\"],\"regions\":[\"the United States\"],\"source\":{\"description\":\"astribe.com was first indexed by Google more than 10 years ago\",\"security\":\"secure\",\"source_info_link\":\"https://www.astribe.com/\"}},\"cached_page_link\":\"https://webcache.googleusercontent.com/search?q=cache:RURZLeUMJDMJ:https://www.astribe.com/&cd=1&hl=en&ct=clnk&gl=us\",\"displayed_link\":\"https://www.astribe.com\",\"link\":\"https://www.astribe.com/\"}";
+
+        let ex_value: Value = serde_json::from_str(example_response_string).unwrap();
+        
+        println!("{}", ex_value["about_page_link"]);
+
 
     }
 } 
