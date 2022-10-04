@@ -96,7 +96,7 @@ mod tests {
 
         let ex_value: Value = serde_json::from_str(example_response_string).unwrap();
         
-        println!("{}", ex_value["about_page_link"]);
+        println!("{}", ex_value["about_this_result"]);
 
 
     }
